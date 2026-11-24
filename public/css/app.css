@@ -1,0 +1,162 @@
+:root {
+    --navy-900: #0a1b33;
+    --navy-800: #0f2747;
+    --navy-700: #163563;
+    --navy-100: #e4eaf4;
+    --gray-50: #f4f6f9;
+    --gray-200: #e2e6ec;
+    --gray-600: #5b6676;
+    --sidebar-width: 260px;
+}
+
+body {
+    background: var(--gray-50);
+    color: #1c2533;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+    --bs-offcanvas-width: var(--sidebar-width);
+    background: var(--navy-900);
+    color: #fff;
+    width: var(--sidebar-width);
+}
+
+@media (min-width: 992px) {
+    .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        flex: 0 0 var(--sidebar-width);
+    }
+}
+
+.sidebar .brand {
+    padding: 1.25rem 1.25rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar .brand small {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.75);
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 0.15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.sidebar .nav-link:hover {
+    color: #fff;
+    background: var(--navy-800);
+}
+
+.sidebar .nav-link.active {
+    color: #fff;
+    background: var(--navy-700);
+}
+
+.sidebar .nav-heading {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 1rem 0.85rem 0.35rem;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0.75rem 1.25rem;
+}
+
+.main-content {
+    padding: 1.5rem;
+}
+
+/* ---------- Cards ---------- */
+.card {
+    border: 1px solid var(--gray-200);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(10, 27, 51, 0.04);
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    font-weight: 600;
+    color: var(--navy-800);
+}
+
+.stat-card .stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: var(--navy-100);
+    color: var(--navy-700);
+}
+
+.stat-card .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--navy-800);
+    line-height: 1.1;
+}
+
+.stat-card .stat-label {
+    color: var(--gray-600);
+    font-size: 0.85rem;
+}
+
+/* ---------- Buttons / tables ---------- */
+.btn-navy {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--navy-800);
+    --bs-btn-border-color: var(--navy-800);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--navy-700);
+    --bs-btn-hover-border-color: var(--navy-700);
+    --bs-btn-active-bg: var(--navy-900);
+    --bs-btn-active-border-color: var(--navy-900);
+}
+
+.table > :not(caption) > * > * {
+    padding: 0.75rem 1rem;
+}
+
+.table thead th {
+    background: var(--gray-50);
+    color: var(--gray-600);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+/* ---------- Login page ---------- */
+.login-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: linear-gradient(160deg, var(--navy-900) 0%, var(--navy-700) 100%);
+}
+
+.login-card {
+    width: 100%;
+    max-width: 410px;
+    border: 0;
+    border-radius: 0.9rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
