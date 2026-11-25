@@ -37,6 +37,8 @@ Route::middleware(['auth', EnsureUserHasRole::class . ':admin,officer'])->group(
     // Students: list/search, add, view (with violation history), edit. No delete.
     // The JSON search route must come BEFORE the resource so "search" isn't read as an ID.
     Route::get('students/search', [StudentController::class, 'search'])->name('students.search');
+    Route::get('students/{student}/photo', [StudentController::class, 'photo'])
+        ->whereNumber('student')->name('students.photo');
     Route::resource('students', StudentController::class)->except(['destroy']);
 
     // Reports: list (admin = all, officer = own), view, protected evidence file.

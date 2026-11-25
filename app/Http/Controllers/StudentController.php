@@ -8,7 +8,9 @@ use App\Models\ViolationReport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StudentController extends Controller
 {
@@ -50,7 +52,9 @@ class StudentController extends Controller
 
     public function store(StudentRequest $request): RedirectResponse
     {
-        $student = Student::create($request->validated());
+        $student = Student::create($request->safe()->except(['photo', 'remove_photo']));
+
+        $this->savePhoto($request, $student);
 
         return redirect()
             ->route('students.show', $student)
@@ -80,10 +84,64 @@ class StudentController extends Controller
 
     public function update(StudentRequest $request, Student $student): RedirectResponse
     {
-        $student->update($request->validated());
+        $student->update($request->safe()->except(['photo', 'remove_photo']));
+
+        $this->savePhoto($request, $student);
 
         return redirect()
             ->route('students.show', $student)
             ->with('success', 'Student information updated.');
+    }
+
+    /**
+     * Protected student photo. Only logged-in, active admins/officers can open it
+     * (route middleware). The file lives on the private disk, not under /public.
+     */
+    public function photo(Student $student): StreamedResponse
+    {
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('local');
+
+        abort_if(
+            ! $student->photo_path || ! $disk->exists($student->photo_path),
+            404,
+            'This student has no photo.'
+        );
+
+        return $disk->response(
+            $student->photo_path,
+            null,
+            [
+                'X-Content-Type-Options' => 'nosniff',
+                'Cache-Control' => 'private, no-store',
+            ]
+        );
+    }
+
+    /** Save a newly uploaded photo, or remove the current one if asked. */
+    private function savePhoto(StudentRequest $request, Student $student): void
+    {
+        $disk = Storage::disk('local');
+
+        if ($request->hasFile('photo')) {
+            $newPath = $request->file('photo')->store('student-photos', 'local');
+            $oldPath = $student->photo_path;
+
+            // photo_path is not mass-assignable on purpose; set it explicitly here.
+            $student->forceFill(['photo_path' => $newPath])->save();
+
+            if ($oldPath) {
+                $disk->delete($oldPath); // don't leave the replaced photo behind
+            }
+
+            return;
+        }
+
+        if ($request->boolean('remove_photo') && $student->photo_path) {
+            $oldPath = $student->photo_path;
+
+            $student->forceFill(['photo_path' => null])->save();
+            $disk->delete($oldPath);
+        }
     }
 }

@@ -18,9 +18,19 @@
                     <dl class="row mb-0">
                         <dt class="col-sm-4 text-muted fw-normal">Student</dt>
                         <dd class="col-sm-8">
-                            <a href="{{ route('students.show', $report->student) }}" class="fw-semibold text-decoration-none">{{ $report->student->full_name }}</a>
-                            <div class="small text-muted">
-                                {{ $report->student->student_number }} · {{ $report->student->course }} · {{ $report->student->year_level }}@if ($report->student->section) · {{ $report->student->section }}@endif
+                            <div class="d-flex align-items-center gap-3">
+                                @if ($report->student->photo_path)
+                                    <a href="{{ route('students.photo', $report->student) }}" target="_blank" rel="noopener">
+                                        <img src="{{ route('students.photo', $report->student) }}" alt="Photo of {{ $report->student->full_name }}"
+                                             class="rounded border" style="width: 84px; height: 84px; object-fit: cover;">
+                                    </a>
+                                @endif
+                                <div>
+                                    <a href="{{ route('students.show', $report->student) }}" class="fw-semibold text-decoration-none">{{ $report->student->full_name }}</a>
+                                    <div class="small text-muted">
+                                        {{ $report->student->student_number }} · {{ $report->student->course }} · {{ $report->student->year_level }}@if ($report->student->section) · {{ $report->student->section }}@endif
+                                    </div>
+                                </div>
                             </div>
                         </dd>
 

@@ -30,6 +30,20 @@ class StudentRequest extends FormRequest
             'course' => ['required', 'string', 'max:100'],
             'year_level' => ['required', 'string', 'max:20'],
             'section' => ['nullable', 'string', 'max:50'],
+
+            // Optional photo. JPG/PNG only (no SVG, which can carry scripts). 3 MB max.
+            'photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:3072'],
+            'remove_photo' => ['nullable', 'boolean'],
+        ];
+    }
+
+    /** @return array<string, string> */
+    public function messages(): array
+    {
+        return [
+            'photo.uploaded' => 'The photo failed to upload. It may be larger than the server allows.',
+            'photo.max' => 'The photo must not be larger than 3 MB.',
+            'photo.mimes' => 'The photo must be a JPG or PNG file.',
         ];
     }
 

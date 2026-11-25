@@ -15,6 +15,21 @@
                     </a>
                 </div>
                 <div class="card-body">
+                    <div class="text-center mb-3">
+                        @if ($student->photo_path)
+                            <a href="{{ route('students.photo', $student) }}" target="_blank" rel="noopener">
+                                <img src="{{ route('students.photo', $student) }}" alt="Photo of {{ $student->full_name }}"
+                                     class="rounded border" style="width: 180px; height: 180px; object-fit: cover;">
+                            </a>
+                        @else
+                            <div class="rounded border bg-light d-inline-flex flex-column align-items-center justify-content-center text-muted"
+                                 style="width: 180px; height: 180px;">
+                                <i class="bi bi-person fs-1"></i>
+                                <span class="small">No photo</span>
+                            </div>
+                        @endif
+                    </div>
+
                     <h2 class="h5 mb-1" style="color: var(--navy-800)">{{ $student->full_name }}</h2>
                     <p class="text-muted mb-3">{{ $student->student_number }}</p>
 

@@ -1,5 +1,5 @@
 {{-- Shared by create and edit. Expects: $student, $action, $cancel --}}
-<form method="POST" action="{{ $action }}" novalidate>
+<form method="POST" action="{{ $action }}" enctype="multipart/form-data" novalidate>
     @csrf
     @if ($student->exists)
         @method('PUT')
@@ -54,6 +54,32 @@
             @error('section')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
+        </div>
+
+        <div class="col-12">
+            <label for="photo" class="form-label">Student photo <span class="text-muted fw-normal">(optional)</span></label>
+            <div class="d-flex align-items-center gap-3">
+                @if ($student->exists && $student->photo_path)
+                    <img src="{{ route('students.photo', $student) }}" alt="Current photo"
+                         class="rounded border" style="width: 84px; height: 84px; object-fit: cover;">
+                @endif
+                <div class="flex-grow-1">
+                    <input type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png"
+                           class="form-control @error('photo') is-invalid @enderror">
+                    @error('photo')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @else
+                        <div class="form-text">JPG or PNG, up to 3 MB. A clear, front-facing photo helps the Admin recognize the student.</div>
+                    @enderror
+
+                    @if ($student->exists && $student->photo_path)
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" name="remove_photo" id="remove_photo" value="1">
+                            <label class="form-check-label" for="remove_photo">Remove current photo</label>
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 
