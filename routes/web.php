@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\ViolationCategoryController;
 use App\Http\Controllers\ViolationReportController;
+use App\Http\Controllers\ViolationReportReviewController;
 use App\Http\Middleware\EnsureUserHasRole;
 use Illuminate\Support\Facades\Route;
 
@@ -62,5 +63,7 @@ Route::middleware(['auth', EnsureUserHasRole::class . ':admin'])->group(function
     Route::patch('categories/{category}/toggle', [ViolationCategoryController::class, 'toggle'])
         ->name('categories.toggle');
 
-    // Next step adds: approve / reject reports with remarks.
+    // Approve / reject a pending report, with remarks.
+    Route::patch('reports/{report}/review', ViolationReportReviewController::class)
+        ->whereNumber('report')->name('reports.review');
 });

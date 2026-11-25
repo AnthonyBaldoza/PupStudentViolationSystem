@@ -17,12 +17,35 @@
                 <div class="mx-auto mb-3" style="width:56px;height:56px;border-radius:.8rem;display:flex;align-items:center;justify-content:center;background:var(--navy-100);color:var(--navy-700);font-size:1.7rem">
                     <i class="bi bi-person-plus"></i>
                 </div>
-                <h1 class="h4 fw-bold mb-1" style="color: var(--navy-800)">Create an Officer Account</h1>
+                <h1 class="h4 fw-bold mb-1" style="color: var(--navy-800)">Create an Account</h1>
                 <p class="text-muted small mb-0">Student Council &middot; Registration code required</p>
             </div>
 
             <form method="POST" action="{{ route('register.store') }}" novalidate>
                 @csrf
+
+                {{-- Account type --}}
+                <div class="mb-3">
+                    <label class="form-label d-block">Account type <span class="text-danger">*</span></label>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="role" id="role_officer" value="officer"
+                               {{ old('role', 'officer') === 'officer' ? 'checked' : '' }}>
+                        <label class="form-check-label" for="role_officer">Student Council Officer</label>
+                    </div>
+
+                    @if ($adminEnabled)
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="role" id="role_admin" value="admin"
+                                   {{ old('role') === 'admin' ? 'checked' : '' }}>
+                            <label class="form-check-label" for="role_admin">Admin (Teacher / Adviser)</label>
+                        </div>
+                    @endif
+
+                    @error('role')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
 
                 <div class="mb-3">
                     <label for="name" class="form-label">Full name</label>
@@ -70,7 +93,7 @@
                     @error('registration_code')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @else
-                        <div class="form-text">Ask the Student Council admin for this code.</div>
+                        <div class="form-text">Use the code that matches the account type you chose.</div>
                     @enderror
                 </div>
 

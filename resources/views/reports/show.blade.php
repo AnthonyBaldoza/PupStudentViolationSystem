@@ -94,7 +94,7 @@
                         @endunless
                     </dl>
 
-                    @if ($report->isPending())
+                    @if ($report->isPending() && ! auth()->user()->isAdmin())
                         <div class="alert alert-warning small mt-3 mb-0">
                             <i class="bi bi-hourglass-split me-1"></i> Waiting for review by an Admin.
                             Only approved reports count as official violations.
@@ -102,6 +102,43 @@
                     @endif
                 </div>
             </div>
+
+            {{-- ===== Admin review (only for pending reports) ===== --}}
+            @if (auth()->user()->isAdmin() && $report->isPending())
+                <div class="card mt-3">
+                    <div class="card-header">Review This Report</div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ route('reports.review', $report) }}">
+                            @csrf
+                            @method('PATCH')
+
+                            <div class="mb-3">
+                                <label for="remarks" class="form-label">Remarks</label>
+                                <textarea id="remarks" name="remarks" rows="4" maxlength="2000"
+                                          class="form-control @error('remarks') is-invalid @enderror"
+                                          placeholder="Required when rejecting. Optional when approving.">{{ old('remarks') }}</textarea>
+                                @error('remarks')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                @error('decision')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" name="decision" value="approved" class="btn btn-success"
+                                        onclick="return confirm('Approve this report? It will count as an official violation.');">
+                                    <i class="bi bi-check-circle me-1"></i> Approve
+                                </button>
+                                <button type="submit" name="decision" value="rejected" class="btn btn-outline-danger"
+                                        onclick="return confirm('Reject this report?');">
+                                    <i class="bi bi-x-circle me-1"></i> Reject
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            @endif
 
             <a href="{{ route('reports.index') }}" class="btn btn-link px-0 mt-2">
                 <i class="bi bi-arrow-left"></i> Back to reports

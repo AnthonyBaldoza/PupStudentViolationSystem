@@ -54,7 +54,7 @@
 
             @if (config('registration.code'))
                 <p class="text-center small text-muted mt-4 mb-0">
-                    New officer? <a href="{{ route('register') }}">Create an account</a>
+                    No account yet? <a href="{{ route('register') }}">Create one</a>
                 </p>
             @endif
         </div>

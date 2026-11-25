@@ -16,20 +16,37 @@ class RegisterController extends Controller
     {
         abort_unless(config('registration.code'), 404);
 
-        return view('auth.register');
+        return view('auth.register', [
+            'adminEnabled' => (bool) $this->adminCode(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $code = config('registration.code');
+        $officerCode = config('registration.code');
 
-        abort_unless($code, 404);
+        abort_unless($officerCode, 404);
 
-        // Check the code first so outsiders can't probe which emails already exist.
-        if (! hash_equals((string) $code, (string) $request->input('registration_code'))) {
+        // Which codes exist for which role. Only these two roles can ever be created here.
+        $codes = [
+            User::ROLE_OFFICER => $officerCode,
+            User::ROLE_ADMIN => $this->adminCode(),
+        ];
+
+        $role = (string) $request->input('role', User::ROLE_OFFICER);
+        $expected = $codes[$role] ?? null; // null = unknown role, or admin signup disabled
+
+        if (! $expected) {
             return back()
-                ->withErrors(['registration_code' => 'Invalid registration code.'])
-                ->onlyInput('name', 'email');
+                ->withErrors(['role' => 'This account type is not available for registration.'])
+                ->onlyInput('name', 'email', 'role');
+        }
+
+        // Check the code before anything else so outsiders can't probe which emails exist.
+        if (! hash_equals((string) $expected, (string) $request->input('registration_code'))) {
+            return back()
+                ->withErrors(['registration_code' => 'Invalid registration code for the selected account type.'])
+                ->onlyInput('name', 'email', 'role');
         }
 
         $data = $request->validate([
@@ -38,13 +55,11 @@ class RegisterController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
         ]);
 
-        // Self-registration can only ever create an Officer. Admin accounts are never
-        // created here.
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'], // hashed by the model cast
-            'role' => User::ROLE_OFFICER,
+            'role' => $role,                 // officer or admin; proven by the matching code above
             'is_active' => true,
         ]);
 
@@ -52,5 +67,21 @@ class RegisterController extends Controller
         $request->session()->regenerate();
 
         return redirect()->route('dashboard');
+    }
+
+    /**
+     * The admin code, or null when admin signup is off. If someone set the admin
+     * code equal to the officer code, admin signup is switched off: otherwise the
+     * officer code would also unlock Admin accounts.
+     */
+    private function adminCode(): ?string
+    {
+        $admin = config('registration.admin_code');
+
+        if (! $admin || $admin === config('registration.code')) {
+            return null;
+        }
+
+        return (string) $admin;
     }
 }

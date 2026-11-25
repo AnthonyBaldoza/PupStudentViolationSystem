@@ -58,7 +58,7 @@
                     @forelse ($recent as $report)
                         <tr>
                             <td>
-                                <div class="fw-semibold">{{ $report->student->full_name }}</div>
+                                <a href="{{ route('reports.show', $report) }}" class="fw-semibold text-decoration-none">{{ $report->student->full_name }}</a>
                                 <div class="small text-muted">{{ $report->student->student_number }}</div>
                             </td>
                             <td>{{ $report->category->name }}</td>
