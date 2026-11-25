@@ -101,12 +101,12 @@
 
                     <div class="col-12">
                         <label for="evidence" class="form-label">Supporting evidence <span class="text-muted fw-normal">(optional)</span></label>
-                        <input type="file" id="evidence" name="evidence" accept=".jpg,.jpeg,.png,.pdf"
+                        <input type="file" id="evidence" name="evidence[]" accept=".jpg,.jpeg,.png,.pdf" multiple
                                class="form-control @error('evidence') is-invalid @enderror">
                         @error('evidence')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @else
-                            <div class="form-text">JPG, PNG or PDF, up to 5 MB. Only the Admin and you can open it.</div>
+                            <div class="form-text">JPG, PNG or PDF, up to 5 files and 5 MB each. Only the Admin and you can open them.</div>
                         @enderror
                     </div>
                 </div>
@@ -128,8 +128,14 @@
         // Friendly early warning for files over 5 MB (the server checks again).
         document.getElementById('evidence').addEventListener('change', function () {
             var file = this.files[0];
-            if (file && file.size > 5 * 1024 * 1024) {
-                alert('That file is larger than 5 MB. Please choose a smaller file.');
+            var files = Array.from(this.files);
+            if (files.length > 5) {
+                alert('You may attach up to 5 evidence files.');
+                this.value = '';
+                return;
+            }
+            if (files.some(function (item) { return item.size > 5 * 1024 * 1024; })) {
+                alert('One or more files are larger than 5 MB. Please choose smaller files.');
                 this.value = '';
             }
         });

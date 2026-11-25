@@ -64,6 +64,11 @@
                             @endif
                             <td><x-status-badge :status="$report->status" /></td>
                             <td class="text-end text-nowrap">
+                                @if ($report->isPending() && ! $isAdmin && $report->reported_by === auth()->id())
+                                    <a href="{{ route('reports.edit', $report) }}" class="btn btn-sm btn-outline-secondary me-1">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                @endif
                                 <a href="{{ route('reports.show', $report) }}" class="btn btn-sm btn-outline-secondary">
                                     <i class="bi bi-eye"></i> View
                                 </a>

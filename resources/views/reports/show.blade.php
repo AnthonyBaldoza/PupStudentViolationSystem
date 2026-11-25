@@ -3,11 +3,6 @@
 @section('title', 'Report #' . $report->id)
 
 @section('content')
-    @php
-        $ext = $report->evidence_path ? strtolower(pathinfo($report->evidence_path, PATHINFO_EXTENSION)) : null;
-        $isImage = in_array($ext, ['jpg', 'jpeg', 'png'], true);
-    @endphp
-
     <div class="row g-4">
 
         {{-- ===== Incident details + evidence ===== --}}
@@ -52,23 +47,28 @@
             <div class="card">
                 <div class="card-header">Supporting Evidence</div>
                 <div class="card-body">
-                    @if (! $report->evidence_path)
+                    @if ($report->evidence->isEmpty())
                         <span class="text-muted">No evidence was attached to this report.</span>
                     @else
-                        @if ($isImage)
-                            <a href="{{ route('reports.evidence', $report) }}" target="_blank" rel="noopener">
-                                <img src="{{ route('reports.evidence', $report) }}" alt="Evidence image"
-                                     class="img-fluid rounded border mb-3" style="max-height: 480px">
-                            </a>
-                        @endif
-
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <i class="bi {{ $isImage ? 'bi-file-earmark-image' : 'bi-file-earmark-pdf' }} fs-4" style="color: var(--maroon-700)"></i>
-                            <span class="me-2">{{ $report->evidence_original_name ?? 'evidence.' . $ext }}</span>
-                            <a href="{{ route('reports.evidence', $report) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
-                                <i class="bi bi-box-arrow-up-right"></i> Open
-                            </a>
-                        </div>
+                        @foreach ($report->evidence as $evidence)
+                            @php
+                                $ext = strtolower(pathinfo($evidence->path, PATHINFO_EXTENSION));
+                                $isImage = in_array($ext, ['jpg', 'jpeg', 'png'], true);
+                            @endphp
+                            @if ($isImage)
+                                <a href="{{ route('reports.evidence.show', [$report, $evidence]) }}" target="_blank" rel="noopener">
+                                    <img src="{{ route('reports.evidence.show', [$report, $evidence]) }}" alt="Evidence image"
+                                         class="img-fluid rounded border mb-3 d-block" style="max-height: 480px">
+                                </a>
+                            @endif
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                                <i class="bi {{ $isImage ? 'bi-file-earmark-image' : 'bi-file-earmark-pdf' }} fs-5" style="color: var(--maroon-700)"></i>
+                                <span class="me-2">{{ $evidence->original_name }}</span>
+                                <a href="{{ route('reports.evidence.show', [$report, $evidence]) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-box-arrow-up-right"></i> Open
+                                </a>
+                            </div>
+                        @endforeach
                     @endif
                 </div>
             </div>
@@ -109,9 +109,49 @@
                             <i class="bi bi-hourglass-split me-1"></i> Waiting for review by an Admin.
                             Only approved reports count as official violations.
                         </div>
+                        <a href="{{ route('reports.edit', $report) }}" class="btn btn-outline-secondary w-100 mt-3">
+                            <i class="bi bi-pencil me-1"></i> Edit Pending Report
+                        </a>
                     @endif
                 </div>
             </div>
+
+            @if ($report->sanction)
+                <div class="card mt-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Sanction / Action Plan</span>
+                        <span class="badge {{ $report->sanction->isCompleted() ? 'bg-success' : 'bg-warning text-dark' }}">
+                            {{ ucfirst($report->sanction->status) }}
+                        </span>
+                    </div>
+                    <div class="card-body small">
+                        <dl class="row mb-0">
+                            <dt class="col-4 text-muted fw-normal">Action</dt>
+                            <dd class="col-8">{{ $report->sanction->title }}</dd>
+                            <dt class="col-4 text-muted fw-normal">Details</dt>
+                            <dd class="col-8">{{ $report->sanction->description ?: '—' }}</dd>
+                            <dt class="col-4 text-muted fw-normal">Due date</dt>
+                            <dd class="col-8 {{ $report->sanction->isCompleted() ? '' : 'mb-0' }}">
+                                {{ $report->sanction->due_at?->format('M d, Y') ?? 'No deadline set' }}
+                            </dd>
+                            @if ($report->sanction->isCompleted())
+                                <dt class="col-4 text-muted fw-normal">Completed</dt>
+                                <dd class="col-8 mb-0">{{ $report->sanction->completed_at?->format('M d, Y h:i A') }}</dd>
+                            @endif
+                        </dl>
+                        @if (auth()->user()->isAdmin() && ! $report->sanction->isCompleted())
+                            <form method="POST" action="{{ route('sanctions.complete', $report->sanction) }}" class="mt-3">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-success btn-sm w-100"
+                                        onclick="return confirm('Mark this sanction as completed?');">
+                                    <i class="bi bi-check-circle me-1"></i> Mark Completed
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @endif
 
             {{-- ===== Admin review (only for pending reports) ===== --}}
             @if (auth()->user()->isAdmin() && $report->isPending())
@@ -133,6 +173,31 @@
                                 @error('decision')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
+
+                                <div class="border-top pt-3 mt-3">
+                                    <p class="small fw-semibold mb-2">Optional sanction / action plan</p>
+                                    <div class="mb-2">
+                                        <label for="sanction_title" class="form-label small">Action</label>
+                                        <input type="text" id="sanction_title" name="sanction_title" maxlength="150"
+                                               value="{{ old('sanction_title') }}"
+                                               class="form-control form-control-sm @error('sanction_title') is-invalid @enderror"
+                                               placeholder="e.g. Community service">
+                                        @error('sanction_title')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="sanction_description" class="form-label small">Details</label>
+                                        <textarea id="sanction_description" name="sanction_description" rows="2" maxlength="2000"
+                                                  class="form-control form-control-sm">{{ old('sanction_description') }}</textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="sanction_due_at" class="form-label small">Due date</label>
+                                        <input type="date" id="sanction_due_at" name="sanction_due_at"
+                                               value="{{ old('sanction_due_at') }}"
+                                               min="{{ now()->format('Y-m-d') }}"
+                                               class="form-control form-control-sm @error('sanction_due_at') is-invalid @enderror">
+                                        @error('sanction_due_at')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="d-grid gap-2">
