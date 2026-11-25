@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StudentRequest;
 use App\Models\Student;
 use App\Models\ViolationReport;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -22,6 +23,24 @@ class StudentController extends Controller
             ->withQueryString();
 
         return view('students.index', compact('students', 'search'));
+    }
+
+    /** JSON search used by the student picker on the report form. */
+    public function search(Request $request): JsonResponse
+    {
+        $term = trim((string) $request->query('q', ''));
+
+        if (mb_strlen($term) < 2) {
+            return response()->json([]);
+        }
+
+        $students = Student::query()
+            ->search($term)
+            ->orderBy('full_name')
+            ->limit(10)
+            ->get(['id', 'student_number', 'full_name', 'course', 'year_level', 'section']);
+
+        return response()->json($students);
     }
 
     public function create(): View

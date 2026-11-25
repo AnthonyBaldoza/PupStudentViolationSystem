@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\ViolationCategoryController;
+use App\Http\Controllers\ViolationReportController;
 use App\Http\Middleware\EnsureUserHasRole;
 use Illuminate\Support\Facades\Route;
 
@@ -33,9 +34,23 @@ Route::middleware(['auth', EnsureUserHasRole::class . ':admin,officer'])->group(
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     // Students: list/search, add, view (with violation history), edit. No delete.
+    // The JSON search route must come BEFORE the resource so "search" isn't read as an ID.
+    Route::get('students/search', [StudentController::class, 'search'])->name('students.search');
     Route::resource('students', StudentController::class)->except(['destroy']);
 
-    // Later steps add: reports (officer + admin) here.
+    // Reports: list (admin = all, officer = own), view, protected evidence file.
+    // Access to a single report is checked again in ViolationReportPolicy.
+    Route::get('reports', [ViolationReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/{report}', [ViolationReportController::class, 'show'])
+        ->whereNumber('report')->name('reports.show');
+    Route::get('reports/{report}/evidence', [ViolationReportController::class, 'evidence'])
+        ->whereNumber('report')->name('reports.evidence');
+});
+
+// ---- Officer only: submit reports ----
+Route::middleware(['auth', EnsureUserHasRole::class . ':officer'])->group(function () {
+    Route::get('reports/create', [ViolationReportController::class, 'create'])->name('reports.create');
+    Route::post('reports', [ViolationReportController::class, 'store'])->name('reports.store');
 });
 
 // ---- Admin only ----
@@ -47,5 +62,5 @@ Route::middleware(['auth', EnsureUserHasRole::class . ':admin'])->group(function
     Route::patch('categories/{category}/toggle', [ViolationCategoryController::class, 'toggle'])
         ->name('categories.toggle');
 
-    // Later steps add: report review here.
+    // Next step adds: approve / reject reports with remarks.
 });
