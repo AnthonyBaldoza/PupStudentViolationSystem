@@ -3,6 +3,8 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\ViolationCategoryController;
 use App\Http\Middleware\EnsureUserHasRole;
 use Illuminate\Support\Facades\Route;
 
@@ -30,10 +32,20 @@ Route::post('/logout', [LoginController::class, 'destroy'])
 Route::middleware(['auth', EnsureUserHasRole::class . ':admin,officer'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    // Later steps add: students, reports (officer + admin) here.
+    // Students: list/search, add, view (with violation history), edit. No delete.
+    Route::resource('students', StudentController::class)->except(['destroy']);
+
+    // Later steps add: reports (officer + admin) here.
 });
 
 // ---- Admin only ----
 Route::middleware(['auth', EnsureUserHasRole::class . ':admin'])->group(function () {
-    // Later steps add: violation categories, report review here.
+    // Violation categories: add, edit, activate/deactivate. No delete.
+    Route::resource('categories', ViolationCategoryController::class)
+        ->parameters(['categories' => 'category'])
+        ->except(['show', 'destroy']);
+    Route::patch('categories/{category}/toggle', [ViolationCategoryController::class, 'toggle'])
+        ->name('categories.toggle');
+
+    // Later steps add: report review here.
 });

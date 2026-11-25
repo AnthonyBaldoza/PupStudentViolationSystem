@@ -1,12 +1,38 @@
+/* ==========================================================================
+   Student Violation Reporting System - theme
+   Maroon + gold palette, #F4F6F9 page background.
+
+   NOTE: the old names --navy-* and .btn-navy are kept as aliases so the
+   existing Blade views keep working without edits. They now point to maroon.
+   ========================================================================== */
+
 :root {
-    --navy-900: #0a1b33;
-    --navy-800: #0f2747;
-    --navy-700: #163563;
-    --navy-100: #e4eaf4;
+    /* Maroon */
+    --maroon-900: #4d0b0f;
+    --maroon-800: #6b0f14;
+    --maroon-700: #800000;
+    --maroon-100: #f6e6e6;
+
+    /* Gold */
+    --gold-500: #f5b800;
+    --gold-400: #ffc72c;
+
+    /* Neutrals */
     --gray-50: #f4f6f9;
     --gray-200: #e2e6ec;
     --gray-600: #5b6676;
+
     --sidebar-width: 260px;
+
+    /* Legacy aliases (used by existing views) */
+    --navy-900: var(--maroon-900);
+    --navy-800: var(--maroon-800);
+    --navy-700: var(--maroon-700);
+    --navy-100: var(--maroon-100);
+
+    /* Bootstrap link colors -> maroon */
+    --bs-link-color-rgb: 128, 0, 0;
+    --bs-link-hover-color-rgb: 77, 11, 15;
 }
 
 body {
@@ -18,31 +44,45 @@ body {
 /* ---------- Sidebar ---------- */
 .sidebar {
     --bs-offcanvas-width: var(--sidebar-width);
-    background: var(--navy-900);
+    --bs-offcanvas-bg: var(--maroon-900);
+    --bs-offcanvas-color: #fff;
+    background: var(--maroon-900);
     color: #fff;
     width: var(--sidebar-width);
 }
 
+/*
+ * Bootstrap's .offcanvas-lg forces a transparent background, width:auto and
+ * height:auto on screens >= 992px (that is what made the sidebar look white).
+ * Override it here with a more specific selector.
+ */
 @media (min-width: 992px) {
-    .sidebar {
-        position: sticky;
+    .sidebar.offcanvas-lg {
+        position: sticky !important;
         top: 0;
-        height: 100vh;
-        flex: 0 0 var(--sidebar-width);
+        height: 100vh !important;
+        width: var(--sidebar-width) !important;
+        flex: 0 0 var(--sidebar-width) !important;
+        background-color: var(--maroon-900) !important;
+        color: #fff !important;
     }
 }
 
 .sidebar .brand {
     padding: 1.25rem 1.25rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 3px solid var(--gold-500);
+}
+
+.sidebar .brand .bi {
+    color: var(--gold-400);
 }
 
 .sidebar .brand small {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .sidebar .nav-link {
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.82);
     border-radius: 0.5rem;
     padding: 0.6rem 0.85rem;
     margin-bottom: 0.15rem;
@@ -51,21 +91,29 @@ body {
     gap: 0.65rem;
 }
 
-.sidebar .nav-link:hover {
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus {
     color: #fff;
-    background: var(--navy-800);
+    background: var(--maroon-800);
 }
 
 .sidebar .nav-link.active {
     color: #fff;
-    background: var(--navy-700);
+    font-weight: 600;
+    background: var(--maroon-700);
+    box-shadow: inset 4px 0 0 var(--gold-400);
+}
+
+.sidebar .nav-link.active .bi {
+    color: var(--gold-400);
 }
 
 .sidebar .nav-heading {
     font-size: 0.7rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--gold-400);
+    opacity: 0.85;
     padding: 1rem 0.85rem 0.35rem;
 }
 
@@ -84,14 +132,14 @@ body {
 .card {
     border: 1px solid var(--gray-200);
     border-radius: 0.75rem;
-    box-shadow: 0 1px 2px rgba(10, 27, 51, 0.04);
+    box-shadow: 0 1px 2px rgba(77, 11, 15, 0.05);
 }
 
 .card-header {
     background: #fff;
     border-bottom: 1px solid var(--gray-200);
     font-weight: 600;
-    color: var(--navy-800);
+    color: var(--maroon-800);
 }
 
 .stat-card .stat-icon {
@@ -102,14 +150,14 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 1.3rem;
-    background: var(--navy-100);
-    color: var(--navy-700);
+    background: var(--maroon-100);
+    color: var(--maroon-700);
 }
 
 .stat-card .stat-value {
     font-size: 1.75rem;
     font-weight: 700;
-    color: var(--navy-800);
+    color: var(--maroon-800);
     line-height: 1.1;
 }
 
@@ -118,18 +166,45 @@ body {
     font-size: 0.85rem;
 }
 
-/* ---------- Buttons / tables ---------- */
+/* ---------- Buttons ---------- */
 .btn-navy {
     --bs-btn-color: #fff;
-    --bs-btn-bg: var(--navy-800);
-    --bs-btn-border-color: var(--navy-800);
+    --bs-btn-bg: var(--maroon-700);
+    --bs-btn-border-color: var(--maroon-700);
     --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: var(--navy-700);
-    --bs-btn-hover-border-color: var(--navy-700);
-    --bs-btn-active-bg: var(--navy-900);
-    --bs-btn-active-border-color: var(--navy-900);
+    --bs-btn-hover-bg: var(--maroon-800);
+    --bs-btn-hover-border-color: var(--maroon-800);
+    --bs-btn-focus-shadow-rgb: 128, 0, 0;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--maroon-900);
+    --bs-btn-active-border-color: var(--maroon-900);
 }
 
+.btn-outline-secondary {
+    --bs-btn-hover-bg: var(--maroon-700);
+    --bs-btn-hover-border-color: var(--maroon-700);
+    --bs-btn-active-bg: var(--maroon-800);
+    --bs-btn-active-border-color: var(--maroon-800);
+}
+
+/* ---------- Forms ---------- */
+.form-control:focus,
+.form-select:focus {
+    border-color: #b35a5a;
+    box-shadow: 0 0 0 0.25rem rgba(128, 0, 0, 0.18);
+}
+
+.form-check-input:focus {
+    border-color: #b35a5a;
+    box-shadow: 0 0 0 0.25rem rgba(128, 0, 0, 0.18);
+}
+
+.form-check-input:checked {
+    background-color: var(--maroon-700);
+    border-color: var(--maroon-700);
+}
+
+/* ---------- Tables ---------- */
 .table > :not(caption) > * > * {
     padding: 0.75rem 1rem;
 }
@@ -143,20 +218,31 @@ body {
     border-bottom: 1px solid var(--gray-200);
 }
 
-/* ---------- Login page ---------- */
+/* ---------- Pagination ---------- */
+.pagination {
+    --bs-pagination-color: var(--maroon-700);
+    --bs-pagination-hover-color: var(--maroon-900);
+    --bs-pagination-focus-color: var(--maroon-900);
+    --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(128, 0, 0, 0.18);
+    --bs-pagination-active-bg: var(--maroon-700);
+    --bs-pagination-active-border-color: var(--maroon-700);
+}
+
+/* ---------- Login / register pages ---------- */
 .login-wrap {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    background: linear-gradient(160deg, var(--navy-900) 0%, var(--navy-700) 100%);
+    background: linear-gradient(160deg, var(--maroon-900) 0%, var(--maroon-700) 100%);
 }
 
 .login-card {
     width: 100%;
     max-width: 410px;
     border: 0;
+    border-top: 5px solid var(--gold-500);
     border-radius: 0.9rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
