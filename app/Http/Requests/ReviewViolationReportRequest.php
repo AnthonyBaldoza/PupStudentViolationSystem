@@ -31,6 +31,18 @@ class ReviewViolationReportRequest extends FormRequest
                 'string',
                 'max:2000',
             ],
+            'sanction_title' => [
+                'nullable',
+                'required_with:sanction_description,sanction_due_at',
+                'string',
+                'max:150',
+            ],
+            'sanction_description' => ['nullable', 'string', 'max:2000'],
+            'sanction_due_at' => [
+                'nullable',
+                'date',
+                'after_or_equal:today',
+            ],
         ];
     }
 

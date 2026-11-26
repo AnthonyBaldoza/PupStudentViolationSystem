@@ -7,6 +7,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\ViolationCategoryController;
 use App\Http\Controllers\ViolationReportController;
 use App\Http\Controllers\ViolationReportReviewController;
+use App\Http\Controllers\ViolationSanctionController;
 use App\Http\Middleware\EnsureUserHasRole;
 use Illuminate\Support\Facades\Route;
 
@@ -31,7 +32,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])
     ->name('logout');
 
 // ---- Any logged-in, active user (admin or officer) ----
-Route::middleware(['auth', EnsureUserHasRole::class . ':admin,officer'])->group(function () {
+Route::middleware(['auth', EnsureUserHasRole::class.':admin,officer'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     // Students: list/search, add, view (with violation history), edit. No delete.
@@ -48,16 +49,22 @@ Route::middleware(['auth', EnsureUserHasRole::class . ':admin,officer'])->group(
         ->whereNumber('report')->name('reports.show');
     Route::get('reports/{report}/evidence', [ViolationReportController::class, 'evidence'])
         ->whereNumber('report')->name('reports.evidence');
+    Route::get('reports/{report}/evidence/{evidence}', [ViolationReportController::class, 'evidence'])
+        ->whereNumber(['report', 'evidence'])->name('reports.evidence.show');
 });
 
 // ---- Officer only: submit reports ----
-Route::middleware(['auth', EnsureUserHasRole::class . ':officer'])->group(function () {
+Route::middleware(['auth', EnsureUserHasRole::class.':officer'])->group(function () {
     Route::get('reports/create', [ViolationReportController::class, 'create'])->name('reports.create');
     Route::post('reports', [ViolationReportController::class, 'store'])->name('reports.store');
+    Route::get('reports/{report}/edit', [ViolationReportController::class, 'edit'])
+        ->whereNumber('report')->name('reports.edit');
+    Route::patch('reports/{report}', [ViolationReportController::class, 'update'])
+        ->whereNumber('report')->name('reports.update');
 });
 
 // ---- Admin only ----
-Route::middleware(['auth', EnsureUserHasRole::class . ':admin'])->group(function () {
+Route::middleware(['auth', EnsureUserHasRole::class.':admin'])->group(function () {
     // Violation categories: add, edit, activate/deactivate. No delete.
     Route::resource('categories', ViolationCategoryController::class)
         ->parameters(['categories' => 'category'])
@@ -68,4 +75,6 @@ Route::middleware(['auth', EnsureUserHasRole::class . ':admin'])->group(function
     // Approve / reject a pending report, with remarks.
     Route::patch('reports/{report}/review', ViolationReportReviewController::class)
         ->whereNumber('report')->name('reports.review');
+    Route::patch('sanctions/{sanction}/complete', [ViolationSanctionController::class, 'complete'])
+        ->whereNumber('sanction')->name('sanctions.complete');
 });

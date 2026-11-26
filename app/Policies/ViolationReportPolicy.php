@@ -21,4 +21,12 @@ class ViolationReportPolicy
     {
         return $user->isOfficer();
     }
+
+    /** Pending reports may be edited only by the officer who submitted them. */
+    public function update(User $user, ViolationReport $report): bool
+    {
+        return $user->isOfficer()
+            && $report->isPending()
+            && (int) $report->reported_by === (int) $user->id;
+    }
 }
