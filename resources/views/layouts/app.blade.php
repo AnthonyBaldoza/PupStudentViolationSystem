@@ -49,6 +49,12 @@
                 </a>
             @endif
 
+            @if (auth()->user()->isAdmin() && Route::has('violations.index'))
+                <a class="nav-link {{ request()->routeIs('violations.*') ? 'active' : '' }}" href="{{ route('violations.index') }}">
+                    <i class="bi bi-clipboard-data"></i> Student Violations
+                </a>
+            @endif
+
             @if (auth()->user()->isAdmin() && Route::has('categories.index'))
                 <div class="nav-heading">Administration</div>
                 <a class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" href="{{ route('categories.index') }}">

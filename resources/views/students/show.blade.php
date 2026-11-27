@@ -2,7 +2,26 @@
 
 @section('title', 'Student Profile')
 
+@push('styles')
+    <style>
+        @media print {
+            body { background: #fff !important; }
+            .sidebar, .topbar, .btn, .alert { display: none !important; }
+            .main-content { padding: 0 !important; }
+            .card { border: 0 !important; box-shadow: none !important; }
+            .badge, .table thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            a { color: inherit !important; text-decoration: none !important; }
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+@endpush
+
 @section('content')
+    <div class="d-none d-print-block mb-3">
+        <h1 class="h4 mb-0" style="color: var(--maroon-800)">Student Violation History</h1>
+        <div class="small text-muted">Printed {{ now()->format('F d, Y h:i A') }} by {{ auth()->user()->name }}</div>
+    </div>
+
     <div class="row g-4">
 
         {{-- ===== Student details ===== --}}
@@ -70,6 +89,10 @@
                     <i class="bi bi-plus-circle me-1"></i> Report a Violation
                 </a>
             @endif
+
+            <button type="button" onclick="window.print()" class="btn btn-outline-secondary w-100 mt-2">
+                <i class="bi bi-printer me-1"></i> Print History
+            </button>
 
             <a href="{{ route('students.index') }}" class="btn btn-link px-0 mt-2">
                 <i class="bi bi-arrow-left"></i> Back to students
