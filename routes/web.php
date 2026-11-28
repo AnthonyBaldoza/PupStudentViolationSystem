@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentViolationController;
 use App\Http\Controllers\ViolationCategoryController;
@@ -34,6 +35,15 @@ Route::post('/logout', [LoginController::class, 'destroy'])
 // ---- Any logged-in, active user (admin or officer) ----
 Route::middleware(['auth', EnsureUserHasRole::class . ':admin,officer'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    // My Profile: info + picture, change password. A profile picture can be opened by its
+    // owner or by an admin (checked again inside the controller).
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])
+        ->middleware('throttle:6,1')->name('profile.password');
+    Route::get('/users/{user}/photo', [ProfileController::class, 'photo'])
+        ->whereNumber('user')->name('users.photo');
 
     // Students: list/search, add, view (with violation history), edit. No delete.
     // The JSON search route must come BEFORE the resource so "search" isn't read as an ID.

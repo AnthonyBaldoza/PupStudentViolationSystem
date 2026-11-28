@@ -77,7 +77,12 @@
 
             <div class="dropdown">
                 <button class="btn btn-light border d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle fs-5"></i>
+                    @if (auth()->user()->photo_path)
+                        <img src="{{ route('users.photo', ['user' => auth()->user(), 'v' => auth()->user()->updated_at?->timestamp]) }}"
+                             alt="" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                    @else
+                        <i class="bi bi-person-circle fs-5"></i>
+                    @endif
                     <span class="d-none d-sm-inline text-start lh-sm">
                         <span class="d-block small fw-semibold">{{ auth()->user()->name }}</span>
                         <span class="d-block text-muted" style="font-size:.72rem">{{ ucfirst(auth()->user()->role) }}</span>
@@ -85,6 +90,9 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li class="dropdown-header">{{ auth()->user()->email }}</li>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="bi bi-person me-2"></i>My Profile</a>
+                    </li>
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
